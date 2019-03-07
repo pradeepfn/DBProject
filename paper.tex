@@ -1,0 +1,37 @@
+\documentclass[11pt]{IEEEtran}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{upgreek}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{url}
+\usepackage{float,lipsum}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{setspace}
+\usepackage{epstopdf}
+\usepackage{array}
+\usepackage{listings}
+\DeclareGraphicsExtensions{.eps}
+
+
+\def\sharedaffiliation{%
+\end{tabular}
+\begin{tabular}{c}}
+\makeatletter
+\def\@copyrightspace{\relax}
+\makeatother
+\begin{document}
+\title{NVStore: NVM Aware Zero-copy Index}
+\author{\IEEEauthorblockN{Pradeep Fernando, Jiashen Cao} \\
+\IEEEauthorblockA{College of Computing, Georgia Institute of Technology, Atlanta, Georgia, USA}}
+\maketitle
+\input{introduction}
+\input{motivation}
+\input{solution}
+\bibliographystyle{IEEEtran}
+\bibliography{paper}  % sigproc.bib is the name of the Bibliography in this case
+\end{document}
