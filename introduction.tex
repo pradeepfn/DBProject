@@ -58,10 +58,18 @@ structure design.
 
 We now present NVStore, a novel key-value store based on NVM aware persistent index.
 
-\cite{pmwcas}
-
-
 
 \section{NVStore}
 %proposed solution
 
+
+\begin{figure}[]   
+	\centering
+	\includegraphics[width=\linewidth]{figures/zerocopy.png} 
+	\caption{\bf Node structure of a RBTree node. We do not store key vlaues in the internal nodes. We simply
+	store a persistent pointer in to the external key.} 
+	\label{fig:zerocopy} 
+\end{figure}
+
+
+\cite{pmwcas}
