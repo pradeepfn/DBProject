@@ -1,5 +1,10 @@
 \section{Implementation}
 %how to validate implementation
+In our project, we propose a zero copy indexing protocol to improve the performance of indexing and preserve the data persistence. The memory friendly nature of zero copy indexing protocol is beneficial for saving storage usage and reducing the data copy overhead for index insertion. 
+
+In order to achieve zero copy, at first, we propose to keep both data and index on the non-volatile storage. Secondly, instead of maintaining actual key for indexing data, the new protocol only maintains the persistent pointer to the actual data. Lastly, as a showcase, we will use red black tree as the main data structure to realize the new protocol design.
+
+In our project, we will first implement the new protocol on the red-black tree data structure to explore the benefits of the new indexing protocol. In the future, we can extend our framework to adapt to B+ tree indexing model. The project will also utilize third party tool to leverage the difficulties to work with the non-volatile memory storage. For example, the persistent multi-word compare-and-swap for NVRAM provided by Microsoft will be used to build the lock free indexing data structure. 
 
 \section{Evaluation}
 %evaluate performance
