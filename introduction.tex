@@ -13,13 +13,26 @@ even after a unplanned system crash.That is, during index updates we have to mai
 all-or-nothing semantics by using some form of logging protocol (e.g. Aries).
 
 
-
-
-
+Furthermore maintaining persistent index for block based storage is challenging.
+First, disk I/O based DBMS system (e.g. SSD) access data in blocks. That is 
+even if you are accesing one byte of data, you have to bring in the whole block in to the
+volatile memory. Second, these devices have low access latency compared to volatile main memory --
+two orders of magnitude slower than DRAM. Therefore, the disk based persistent indexes are
+stored out of band (in a seperate file structure) from the actual data. This design
+decision benefits the index traveral. This is because, such data organization enables
+maximum index data availability on volatile buffer-caches.
 
 
 \section{Motivation}
 %why is this problem important
+Non volatile memory(NVM) is an emerging storage technology that promises byte addressable 
+persistency. NVMs have read/write latencies that are comparable to DRAM and the device 
+writes are durable. Fast accesses latencies and byte addressablity enables this new device
+to be placed alongside with DRAM main memory, thus providing direct persistent load/stores
+from the processor.
+
+
+
 
 \cite{pmwcas}
 
