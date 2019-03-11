@@ -56,11 +56,24 @@ state of the device and thus exepensive interms of energy and latency. NVM aware
 index design should take the read/write assymetry in to account for an NVM friendly data
 structure design.
 
-We now present NVStore, a novel key-value store based on NVM aware persistent index.
-
-
 \section{NVStore}
 %proposed solution
+
+We propose NVStore, a persistent key-value store that is based on NVM aware persistent index
+structure. 
+
+\subsection{Zero-copy Index}
+
+First, we store NVStore key-value pairs in a log-structured memory segments on NVM. These, are 
+formatted in to C like memory structures, that gets sequentially stored on the log-segments. The
+C-structure based key-value storage allows direct referencing/de-referencing of stored data 
+as regular memory structures. The log-structuring of groups of such structures allow us to 
+exploit the superior sequential performance of the NVM device.
+
+Next, offload some of the metadata maintainance in to data nodes itself. This is a viable
+option becauseo of low latency random accesses supported by
+
+
 
 
 \begin{figure}[]   
@@ -71,5 +84,6 @@ We now present NVStore, a novel key-value store based on NVM aware persistent in
 	\label{fig:zerocopy} 
 \end{figure}
 
+\subsection{Crash-consistent Index Updates}
 
 \cite{pmwcas}
