@@ -1,8 +1,16 @@
 \section{Introduction}
 %what is the problem
-Data indexing
+Data indexing is an important component of any practical data storage system/DBMS.
+A data index essentially accelerates the read path of the data store by maintaining
+fast metadata lookup for already written/stored data. However, the index itself 
+needs to be persistent in addition to the stored data. Persistent index enables 
+instant recovery for the DBMS as we do not have to rebuild the index from scratch.
 
-
+Maintaining consistent persistent index has its own overheads. First, we have to keep 
+index updated, to keep correctness between index and the data it points to. We identify
+this as runtime-consistency. Next, we should make sure that, our index remain consistent
+even after a unplanned system crash.That is, during index updates we have to maintain
+all-or-nothing semantics by using some form of logging protocol (e.g. Aries).
 
 
 
