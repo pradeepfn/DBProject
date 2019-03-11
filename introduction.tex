@@ -29,10 +29,34 @@ Non volatile memory(NVM) is an emerging storage technology that promises byte ad
 persistency. NVMs have read/write latencies that are comparable to DRAM and the device 
 writes are durable. Fast accesses latencies and byte addressablity enables this new device
 to be placed alongside with DRAM main memory, thus providing direct persistent load/stores
-from the processor.
+from the processor. Furthermore NVMs have high form factor (high capacity devices) thus
+making them ideal devices for both persistent index and data storage. However, naive port
+of existing persistent indexes structures on to NVM is not going to yield the best performance.
+
+First, some of the assumptions that were made during the design of disk oriented persistent
+indexes does not hold true anymore, 1) We can access NVM resident data at byte granularity similar to
+DRAM data acesses. 2) The NVMs provide load store accesses at DRAM speed. Therefore, we can
+possibly store index, alongside the actual data as the index retrival is not slowed down by
+accompanying data. Furthermore, the use of DRAM buffer-cache is redundant as the NVMs are 
+as good as DRAM in terms of access latency.
+
+Next, persistent programming on NVMs is non-trivial task. Specifically, unlike volatile memory
+data strucrures, the NVM writes are durable across system restarts. Therefore, care should be
+taken when updating NVM resident persistent index to maintain both runtime and crash consistency.
+The existing main memory indexes already provide addresses efficient runtime consistent state 
+maintenance. However, they lack the crash-consistency semantics. While NVM itself is persistent,
+when accessed via CPU's load/store interface the writes get cached in the processor's volatile
+caches -- that re-orders the writes on to NVM. We have to explicitly order the writes on to NVM
+to do crash-consistent updates.
 
 
+Finally, while NVMs provide fast read/write accesses, the they have assymetric performance 
+characteristics -- NVM reads are cheaper than NVM writes. NVM writes involve changing physical
+state of the device and thus exepensive interms of energy and latency. NVM aware persistent 
+index design should take the read/write assymetry in to account for an NVM friendly data
+structure design.
 
+We now present NVStore, a novel key-value store based on NVM aware persistent index.
 
 \cite{pmwcas}
 
