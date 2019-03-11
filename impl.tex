@@ -8,7 +8,7 @@ In our project, we will first implement the new protocol on the red-black tree d
 
 \section{Evaluation}
 %evaluate performance
-In order to test our application in a real non-volatile memory architecture, we will use persistent memory programming framework to emulate the non-volatile memory on dynamic random-access memory. This approach ensures that our protocol will still work under the real non-volatile memory environment. 
+In order to test our application in a real non-volatile memory architecture, we will use persistent memory programming framework  \cite{pmem} to emulate the non-volatile memory on dynamic random-access memory. This approach ensures that our protocol will still work under the real non-volatile memory environment. 
 
 Before we start the actual performance evaluation, the new indexing protocol will be tested under multiple random process killing and restarting to ensure the protocol's crash consistency. 
 
