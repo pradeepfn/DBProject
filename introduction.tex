@@ -94,10 +94,11 @@ that are going to be modified on NVM. Next we persist the newly updated subtree 
 usage of cache-flushes and memory fences. Finally, we patch the orginal tree with our new subtree
 using a atomic swap and cache-flush, atomically switching index in to newly udpated state.
 
-\subsection{Alternative Designs}
+Above single word atomic swap algorith has one drawback. It tends to create more copies during
+COW updates as it has to create new subtree that can plug in to the original index tree with just 
+single atomic writes. Recent multiword atomic update primitive\cite{pmwcas} for NVM allows multiword 
+atomic updates. We plan to use this primitve to cut down COW costs during crash-cosnsitent index updates.
 
 
 
 
-
-\cite{pmwcas}
