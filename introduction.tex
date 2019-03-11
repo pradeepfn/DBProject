@@ -70,11 +70,13 @@ C-structure based key-value storage allows direct referencing/de-referencing of 
 as regular memory structures. The log-structuring of groups of such structures allow us to 
 exploit the superior sequential performance of the NVM device.
 
-Next, offload some of the metadata maintainance in to data nodes itself. This is a viable
-option becauseo of low latency random accesses supported by
-
-
-
+Next, offload some of the metadata maintainance in to data nodes themselves. This is a viable
+option becauseo of low latency random accesses supported by the NVM -- a design choice that
+is not possible if the random access is slow. In the new design only maintain peristent pointers
+in to the corresponding key value ( stored in key-value struct). Thus the internal nodes of the 
+NVStore only consists of pointers to keys, removing redundant key data in the index. 
+See ~\autoref{fig:zerocopy} for graphical representation of the above idea using a RBTree internal
+node.
 
 \begin{figure}[]   
 	\centering
@@ -85,5 +87,17 @@ option becauseo of low latency random accesses supported by
 \end{figure}
 
 \subsection{Crash-consistent Index Updates}
+NVStore index structure is tree consists of key and value pointers that are always of 8 bytes in size
+thanks to our 'store only pointers' policy. Therefore, we plan to implement copy-on-write based 
+crash-consistent updates. For new udpates, we first create a new subtree that consist of the nodes
+that are going to be modified on NVM. Next we persist the newly updated subtree on NVM by careful
+usage of cache-flushes and memory fences. Finally, we patch the orginal tree with our new subtree
+using a atomic swap and cache-flush, atomically switching index in to newly udpated state.
+
+\subsection{Alternative Designs}
+
+
+
+
 
 \cite{pmwcas}
