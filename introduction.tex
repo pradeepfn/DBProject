@@ -51,6 +51,16 @@ accompanying data. Furthermore, the use of DRAM buffer-cache is redundant as the
 as good as DRAM in terms of access latency.
 
 
+The traditional database system uses volatile memory to store lists, trees and maps, but there exists 
+impedance between volatile and persistent storage. Data will be lost if node on local NVM fails. The 
+motivation of this project is we can sacrify communication overhead to gain data persistence on the 
+local memory storage. Though this mechanism adds more overhead to the database system, with the improved
+network fabrics, we believe the communication overhead will be negligible in our system. 
+
+The initial project idea is to make the tree data structure persistent and optimize the persistency procedure, 
+but we found out that the PMDK implementation does the similar optimizations under the hood. For later 
+project, we will focus on making the actual data itself persistent. 
+
 \section{}
 %proposed solution
 
