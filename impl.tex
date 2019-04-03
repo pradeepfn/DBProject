@@ -1,25 +1,12 @@
 \section{Implementation}
 %how to validate implementation
-In our project, we propose a zero copy indexing protocol to improve the performance of indexing and preserve the data persistence. The memory friendly nature of zero copy indexing protocol is beneficial for saving storage usage and reducing the data copy overhead for index insertion. 
 
-In order to achieve zero copy, at first, we propose to keep both data and index on the non-volatile storage. Secondly, instead of maintaining actual key for indexing data, the new protocol only maintains the persistent pointer to the actual data. Lastly, as a showcase, we will use red black tree as the main data structure to realize the new protocol design.
 
-In our project, we will first implement the new protocol on the red-black tree data structure to explore the benefits of the new indexing protocol. In the future, we can extend our framework to adapt to B+ tree indexing model. The project will also utilize third party tool to leverage the difficulties to work with the non-volatile memory storage. For example, the persistent multi-word compare-and-swap for NVRAM provided by Microsoft will be used to build the lock free indexing data structure. 
 
 \section{Evaluation}
 %evaluate performance
-In order to test our application in a real non-volatile memory architecture, we will use persistent memory programming framework  \cite{pmem} to emulate the non-volatile memory on dynamic random-access memory. This approach ensures that our protocol will still work under the real non-volatile memory environment. 
-
-Before we start the actual performance evaluation, the new indexing protocol will be tested under multiple random process killing and restarting to ensure the protocol's crash consistency. 
-
-In order the evaluate the performance of our new proposed indexing protocol, we will compare our protocol's performance results against the indexing protocol proposed by the persistent memory programming framework. In that framework, B+ tree is implemented for indexing and a pair of actual key and value is used for indexing lookup, insertion and deletion. We will use the same benchmark used by persistent memory programming framework on our non-copy protocol to check the performance improvement. 
-
-Profiling will also be used in the evaluation to compare the resource usage including dynamic random-access memory and non-volatile memory usage in the run time. 
-
 \section{Project Goals}
 %project goals description
 \begin{itemize}
-    \item The 75$\%$ goal of this project is that we successfully implement a zero copy indexing protocol on non-volatile memory storage. Based on the data structure we implement, we should be able to successfully evaluate performance and resource usage of the new protocol. In this goal, we at least need to correctly implement the non-copy protocol, in which only pointers will be used instead of the actual data. We may not observe the benefit compared to the disk based storage model, but at least the new implemented protocol could provide us some insights about future research directions.
-    \item The 100$\%$ goal of this project is that we successfully implement a zero copy indexing protocol on non-volatile memory storage model. In addition, based on the data structure we implemented, we should be able to observe performance improvement and resource usage saving compared to the original protocol. Compared to the first goal, this goal requires us to do more analysis and fine-tune the our code based on the performance evaluation conducted. The challenges of this goal may exist in processes like garbage collection of persistent pointer on the non-volatile memory. For this goal of the project, a simple redo and undo procedure should also be successfully integrated into the indexing protocol.
-    \item The 125$\%$ goal of this project are that we successfully implement a zero copy indexing protocol and we observe performance improvement for the new protocol. Besides that, the indexing protocol for previous two goals is not able to handle concurrent transactions. For this goal, we expect to build a concurrent indexing storage model and improve more performance compared the the second goal. For this specific goal, there still exists some open questions like whether we should use latch free indexing structure for non-volatile memory or not and how to implement an efficient latching protocol based on the persistent storage model.
+
 \end{itemize}
