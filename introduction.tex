@@ -51,27 +51,24 @@ accompanying data. Furthermore, the use of DRAM buffer-cache is redundant as the
 as good as DRAM in terms of access latency.
 
 
-\section{}
+\section{Blizzard}
 %proposed solution
 
-We propose NVStore, a persistent key-value store that is based on NVM aware persistent index
-structure. 
+We propose Blizzard, a reliable persistent programming substrate. Blizzard provides applications
+with reliable persistent containers that closely matches the ones provided by C++ STL containers.
 
-\subsection{Zero-copy Index}
+\subsection{Persistent Data Structures}
 
-First, we store NVStore key-value pairs in a log-structured memory segments on NVM. These, are 
-formatted in to C like memory structures, that gets sequentially stored on the log-segments. The
-C-structure based key-value storage allows direct referencing/de-referencing of stored data 
-as regular memory structures. The log-structuring of groups of such structures allow us to 
-exploit the superior sequential performance of the NVM device.
+C++ STL containers are a popular programming abstraction among software developers. This is because,
+more often than not, the application's runtime state can be represented by few commonly used 
+data-structures.  However, the C++ STL containers are meant to use with volatile memory, thus
+lacks an failure-atomic udpate support in their existing form.
 
-Next, offload some of the metadata maintainance in to data nodes themselves. This is a viable
-option becauseo of low latency random accesses supported by the NVM -- a design choice that
-is not possible if the random access is slow. In the new design only maintain peristent pointers
-in to the corresponding key value ( stored in key-value struct). Thus the internal nodes of the 
-NVStore only consists of pointers to keys, removing redundant key data in the index. 
-See ~\autoref{fig:zerocopy} for graphical representation of the above idea using a RBTree internal
-node.
+Unlike, volatile main memory, the data stored on persistent memory survives application restarts,
+node restarts -- they are persistent data after all. Hence, we have to guard the data updates 
+against unplanned application crashes, node crashes. Write-ahead logging is a well studied
+system technique that guarantees all or nothing property during persistent storage updates.
+With NVMs we can use value logging in the form of redo/undo logs.
 
 \begin{figure}[]   
 	\centering
@@ -81,19 +78,16 @@ node.
 	\label{fig:zerocopy} 
 \end{figure}
 
-\subsection{Crash-consistent Index Updates}
-NVStore index structure is tree consists of key and value pointers that are always of 8 bytes in size
-thanks to our 'store only pointers' policy. Therefore, we plan to implement copy-on-write based 
-crash-consistent updates. For new udpates, we first create a new subtree that consist of the nodes
-that are going to be modified on NVM. Next we persist the newly updated subtree on NVM by careful
-usage of cache-flushes and memory fences. Finally, we patch the orginal tree with our new subtree
-using a atomic swap and cache-flush, atomically switching index in to newly udpated state.
+Intel PMDK project implements wide-array of persistent memory data-structures. 
+We use them as our building blocks as the sources are freely available. 
 
-Above single word atomic swap algorith has one drawback. It tends to create more copies during
-COW updates as it has to create new subtree that can plug in to the original index tree with just 
-single atomic writes. Recent multiword atomic update primitive\cite{pmwcas} for NVM allows multiword 
-atomic updates. We plan to use this primitve to cut down COW costs during crash-cosnsitent index updates.
+\subsection{Relaible Persistent Containers}
 
 
 
+
+
+
+
+\subsection{Primitive for Reliable, Persistent Data-structure Creation}
 
