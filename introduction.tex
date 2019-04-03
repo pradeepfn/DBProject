@@ -1,26 +1,36 @@
 \section{Introduction}
 %what is the problem
-Data indexing is an important component of any practical data storage system/DBMS.
-A data index essentially accelerates the read path of the data store by maintaining
-fast metadata lookup for already written/stored data. However, the index itself 
-needs to be persistent in addition to the stored data. Persistent index enables 
-instant recovery for the DBMS as we do not have to rebuild the index from scratch.
 
-Maintaining consistent persistent index has its own overheads. First, we have to keep 
-index updated, to keep correctness between index and the data it points to. We identify
-this as runtime-consistency. Next, we should make sure that, our index remain consistent
-even after a unplanned system crash.That is, during index updates we have to maintain
-all-or-nothing semantics by using some form of logging protocol (e.g. Aries).
+Managing persistent data has been a challenge since the very early days of computing.
+Community have tackled the persistent data challenge via system program abstractions
+such as file-systems, data-base management systems, kv-stores, etc.
+The non-volatile memory technology solutions such as Intel's 3DXpoint is about to
+enter the commodity market. These new devices offer byte addressable persistency
+with low latency reads and writes.
 
+Systems community was quick to adopt NVM device properties in their system software
+designs. There has been NVM optimized file-systems,databases,kv-stores and programming abstractions.
+However, the existing persistent memory programming abstractions in the form the kv-stores, posix 
+file APIs and SQL interfaces do not provide data reliability as a first class system
+property. That is, as the NVM modules store data local to the machine, there is a possibility of 
+losing data in an event of catastrophic machine failure. The existing systems provide reliablity
+via data-replication, but such solution are more of an after thought.
 
-Furthermore maintaining persistent index for block based storage is challenging.
-First, disk I/O based DBMS system (e.g. SSD) access data in blocks. That is 
-even if you are accesing one byte of data, you have to bring in the whole block in to the
-volatile memory. Second, these devices have low access latency compared to volatile main memory --
-two orders of magnitude slower than DRAM. Therefore, the disk based persistent indexes are
-stored out of band (in a seperate file structure) from the actual data. This design
-decision benefits the index traveral. This is because, such data organization enables
-maximum index data availability on volatile buffer-caches.
+Furthermore, the state of the art persistent memory storage abstractions such as DBMSs file-systems
+follow the traditional wisdom of storing persistent data with different data layouts/formats
+than the application structures that they represent. This scenario is commonly known as 
+the impedence mismatch of volatile and peristent data. The reason for such mismatch stems 
+from mainly due to their storage device characteristics. The persistent devices used to be
+block addressabilty while the main memory is byte addressable.
+
+With ever improving network hardware and low latency network systems software stacks, 
+the data replication costs have reduced signficantly over the years. Combined with NVM's
+fast stores, it is now possible provide reliable persistent storage with minimal impedence
+mismatch. We design and implement Blizzard, a set of programming abstractions that provides 
+reliable and persistent data storage. First, Blizzard bridges volatile and persistent impedence
+mismatch by directly manipulating persistent memory resident data-structures. Second, it helps
+persistent storage programming by supporting well-known C++ STL like persistent containers.
+Third, Blizzard improves the reliability of these persistent containers using NVM aware replication library.
 
 
 \section{Motivation}
@@ -30,8 +40,8 @@ persistency. NVMs have read/write latencies that are comparable to DRAM and the 
 writes are durable. Fast accesses latencies and byte addressablity enables this new device
 to be placed alongside with DRAM main memory, thus providing direct persistent load/stores
 from the processor. Furthermore NVMs have high form factor (high capacity devices) thus
-making them ideal devices for both persistent index and data storage. However, naive port
-of existing persistent indexes structures on to NVM is not going to yield the best performance.
+making them ideal devices for both persistent index and data storage. 
+
 
 First, some of the assumptions that were made during the design of disk oriented persistent
 indexes does not hold true anymore, 1) We can access NVM resident data at byte granularity similar to
@@ -40,23 +50,8 @@ possibly store index, alongside the actual data as the index retrival is not slo
 accompanying data. Furthermore, the use of DRAM buffer-cache is redundant as the NVMs are 
 as good as DRAM in terms of access latency.
 
-Next, persistent programming on NVMs is non-trivial task. Specifically, unlike volatile memory
-data strucrures, the NVM writes are durable across system restarts. Therefore, care should be
-taken when updating NVM resident persistent index to maintain both runtime and crash consistency.
-The existing main memory indexes already provide addresses efficient runtime consistent state 
-maintenance. However, they lack the crash-consistency semantics. While NVM itself is persistent,
-when accessed via CPU's load/store interface the writes get cached in the processor's volatile
-caches -- that re-orders the writes on to NVM. We have to explicitly order the writes on to NVM
-to do crash-consistent updates.
 
-
-Finally, while NVMs provide fast read/write accesses, the they have assymetric performance 
-characteristics -- NVM reads are cheaper than NVM writes. NVM writes involve changing physical
-state of the device and thus exepensive interms of energy and latency. NVM aware persistent 
-index design should take the read/write assymetry in to account for an NVM friendly data
-structure design.
-
-\section{NVStore}
+\section{}
 %proposed solution
 
 We propose NVStore, a persistent key-value store that is based on NVM aware persistent index
@@ -80,7 +75,7 @@ node.
 
 \begin{figure}[]   
 	\centering
-	\includegraphics[width=\linewidth]{figures/zerocopy.png} 
+	\includegraphics[width=\linewidth]{figures/design.pdf} 
 	\caption{\bf Node structure of a RBTree node. We do not store key vlaues in the internal nodes. We simply
 	store a persistent pointer in to the external key.} 
 	\label{fig:zerocopy} 
