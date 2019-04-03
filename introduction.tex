@@ -40,27 +40,23 @@ persistency. NVMs have read/write latencies that are comparable to DRAM and the 
 writes are durable. Fast accesses latencies and byte addressablity enables this new device
 to be placed alongside with DRAM main memory, thus providing direct persistent load/stores
 from the processor. Furthermore NVMs have high form factor (high capacity devices) thus
-making them ideal devices for both persistent index and data storage. 
+making them ideal devices for data storage. 
 
+There has been numerous effort to adopt volatile memory like data-structures with persistent
+memory. Community has worked on efficient crash-consistency mechanism, concurrency and persistent
+memory interaction, etc. 
 
-First, some of the assumptions that were made during the design of disk oriented persistent
-indexes does not hold true anymore, 1) We can access NVM resident data at byte granularity similar to
-DRAM data acesses. 2) The NVMs provide load store accesses at DRAM speed. Therefore, we can
-possibly store index, alongside the actual data as the index retrival is not slowed down by
-accompanying data. Furthermore, the use of DRAM buffer-cache is redundant as the NVMs are 
-as good as DRAM in terms of access latency.
+However, unlike volatile transient data, persistent data usages
+demand reliability from the system software hardware/software, because the long business critical data
+in the form of application state gets stored on them. Therefore, persistent data storage stacks such
+as databases provide data-reliability via data replication. Data replication is costly and often
+greatly slows down application. Therefore, the common practice is to stay away from reliable data
+storage or to relax some of the reliability guarantees.
 
-
-The traditional database system uses volatile memory to store lists, trees and maps, but there exists 
-impedance between volatile and persistent storage. Data will be lost if node on local NVM fails. The 
-motivation of this project is we can sacrify communication overhead to gain data persistence on the 
-local memory storage. Though this mechanism adds more overhead to the database system, with the improved
-network fabrics, we believe the communication overhead will be negligible in our system. 
-
-The initial project idea is to make the tree data structure persistent and optimize the persistency procedure, 
-but we found out that the PMDK implementation does the similar optimizations under the hood. For later 
-project, we will focus on making the actual data itself persistent. 
-
+Network system software stacks performance have greatly improved over the years. More importantly
+the network system software designed to work well with memory hardware. With NVM offering persistent
+storage we argue that well designed system software stack can provide both persistent and reliable
+data guarantees at a lower performance cost than that of today's state of the art.
 
 \section{Blizzard}
 We propose Blizzard, a reliable persistent programming substrate. Blizzard provides applications
@@ -92,11 +88,37 @@ We use them as our building blocks as the sources are freely available.
 
 \subsection{Relaible Persistent Containers}
 
+We use state machine replication (SMR) as our replication mechanism. SMR's can tolerate
+up to 'f' node failures, given number of replicas are '2f+1'. Furthermore, SMRs improves
+availability, due to dynamic leader election and log-sync up, any of our follower replicas
+can take over the duties of master node in an event of node failure.
 
+Our replication layer support logical operation replication. We plug our containers to work with
+the the replicated operations. 
 
+We expose below set of operations to the end user applications via client API.
 
+\begin{itemize}
+\item Create container - create and initialize a given STL container type for given data types
+\item Insert - insert value in to the container.
+\item Get - retrieve value from the container.
+\end{itemize}
 
-
+A typical STL container inteface supports more operations than listed above. We plan to support them
+as and wehen needed for our application benchmakr needs.
 
 \subsection{Primitive for Reliable, Persistent Data-structure Creation}
+
+Above integration between persistent data-structures and log replicaiton layer
+gives reliablity to our persistent data structures. However, the application developers 
+still have to explicitly call Blizzard API to manipulate persistent state of the application.
+Multi-word CAS is a programming primitive that support both concurrency and persistent. Similar
+primitive that extends the persistency and concurrency with reliability would be very useful
+programming tool.
+
+We are exploring this path at the moment. However, as our log-replicaiton layer relies on operation/logical
+logging we have not yet figured out a way to seamlessly extend the current work in to PMWCAS.
+
+
+
 
