@@ -1,10 +1,44 @@
 \section{Implementation}
 %how to validate implementation
+\noindent{\bf Persistent memory hardware} We emulate persistent memory using volatile DRAM memory. NVMs are slower than DRAM, so we account for 
+slow NVM latency using memory throttling. The modern CPUs allow us to configure the duty cycle value in the memory channel. We use that
+facility to throttle the bandwidth of the DRAM memory device, reducing the bandwidth and latency of the DRAM reads/writes. 
 
+\noindent{\bf Persistent containers}
+We use persistent data-structure implementations of Intel PMDK to model our persistent containers. The PMDK's goal is not to 
+create persistent containers. Hence we had to wrap some of their persistent memory data-structures to fit our container model.
+e.g.: Wrapping B+tree with map interface.
 
+\noindent{\bf Data Replication}
+
+We use log replication system software layer called cyclone~\cite{cyclone} for our data replication. Cyclone implements 
+state machine replication with Raft as the consensus protocol. Cyclone network transports use highly optimized 
+userspace Intel's data plane development kit (DPDK) transport stack. Due to this, we had to port YCSB benchmark to
+use same DPDK transport for performance reasons.
 
 \section{Evaluation}
 %evaluate performance
+
+First we evaluate the basic performance characteristic of our proposed system using well known benchmark -- YCSB. 
+We chose YCSB, because its key-value operations fits well for our container interfaces. We then compare and contrast
+the performance numbers with state of the art key-value store from Facebook -- RocksDB ~\cite{rocksdb}. Work items involve;
+\begin{itemize}
+\item Port containers to work with replication software
+\item Port RocksDB to work with cyclone.
+\item Port YCSB to work with DPDK transport
+\item Runs benchmarks, gettingn numbers
+\end{itemize}
+
+
+Next,we evaluate our system with a real application workload. In this experiment setup, we try to understand the costs
+and benefits involved while using a reliable persistent containers as the basic application's peristent storage abstraction.
+To that end we plan to port a well known application to use our storage primitives. Work items involve;
+\begin{itemize}
+\item Porting existing app to work with our generalized remote Blizzard API.
+\item Running benchmark on the application, with and without Blizzard storage model.
+\end{itemize}
+
+
 \section{Project Goals}
 %project goals description
 We have identified the following goals for our project.
@@ -17,5 +51,4 @@ We have identified the following goals for our project.
 
 \item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primive as it is not straight forward at this
 		point to design it.
-
 \end{itemize}
