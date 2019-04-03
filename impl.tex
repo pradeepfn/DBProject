@@ -7,6 +7,15 @@
 %evaluate performance
 \section{Project Goals}
 %project goals description
+We have identified the following goals for our project.
 \begin{itemize}
+	\item {\bf The 75$\%$ goal:} 1) Porting a Tree (range lookup) and Map ( point lookup) data structure as a reliable persistent containers. 2) Implementing
+			client side library routines to interact with those containers over the network. 
+
+		\item {\bf The 100$\%$ goal:} 1) Port YCSB benchmark to work with our containers. 2) Port a state of the art kv-store (RocksDB). 
+				3) Using ported YCSB benchmark client, report numbers for Blizzard containers and competing state of the art. ( RocksDB ).
+
+\item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primive as it is not straight forward at this
+		point to design it.
 
 \end{itemize}
