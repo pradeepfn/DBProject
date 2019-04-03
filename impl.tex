@@ -52,3 +52,15 @@ We have identified the following goals for our project.
 \item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primive as it is not straight forward at this
 		point to design it.
 \end{itemize}
+
+
+
+\section{Related Work}
+
+PMWCAS~\cite{pmwcas} is a programming primtive that supports both persistency and multiword updates.
+It extends well known CAS pritmive with multiword support while supporting same all or nothing
+programming semantics of CAS. Furthermore, it extends the CAS to be persistent memory aware by
+adding support for durability semantics ( fences and cache-line flushes).
+
+Intel PMDK~\cite{pmdk} provides persistent memory aware data-structures. But they lack the reliability semantics.
+
