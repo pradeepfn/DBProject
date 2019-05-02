@@ -43,14 +43,17 @@ To that end we plan to port a well known application to use our storage primitiv
 %project goals description
 We have identified the following goals for our project.
 \begin{itemize}
-	\item {\bf The 75$\%$ goal:} 1) Porting a Tree (range lookup) and Map ( point lookup) data structure as a reliable persistent containers. 2) Implementing
-			client side library routines to interact with those containers over the network. 
-
-		\item {\bf The 100$\%$ goal:} 1) Port YCSB benchmark to work with our containers. 2) Port a state of the art kv-store (RocksDB). 
-				3) Using ported YCSB benchmark client, report numbers for Blizzard containers and competing state of the art. ( RocksDB ).
-
-\item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primive as it is not straight forward at this
-		point to design it.
+    \item {\bf The 75$\%$ goal:} 1) Porting a Tree (range lookup) and Map ( point lookup) data structure as a reliable persistent containers. 2) Implementing client side library routines to interact with those containers over the network. 
+    \\ \\
+    At first, we spend couple weeks exploring different ideas. Our original thought was to extend the database indexing process to the non-volatile memory. However, we realized that data replication actually introduces large amount of overhead to the system. Therefore, we switched to designing a reliable protocol for database data. For the 75$\%$ goal, we utilize the pmem library to emulate the non-volatile memory and successfully port the client side library with containerized service.
+    \\
+    \item {\bf The 100$\%$ goal:} 1) Port YCSB benchmark to work with our containers. 2) Port a state of the art kv-store (RocksDB). 3) Using ported YCSB benchmark client, report numbers for Blizzard containers and competing state of the art. ( RocksDB ).
+    \\ \\
+    YCSB is a comprehensive test benchmark provided by Yahoo open source. It is mainly coded in Java. Users can create a interface in YCSB to interact with the actual DBMS and the performance will be tested through the interface. The major issue of this goal is that YCSB is mostly in Java, but our implementation is in C++. Therefore, for this goal, we utilized a already implemented driver from Pelaton to interact with the YCSB testing benchmark. 
+    \\
+    \item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primitive as it is not straight forward at this point to design it.
+    \\ \\
+    We have learned PMWCAS and tried to port it into our framework, but due to its complexity of dealing with multi-word concurrency update, we are not able to port it into our prototype. 
 \end{itemize}
 
 
