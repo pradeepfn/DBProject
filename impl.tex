@@ -64,3 +64,10 @@ adding support for durability semantics ( fences and cache-line flushes).
 
 Intel PMDK~\cite{pmdk} provides persistent memory aware data-structures. But they lack the reliability semantics.
 
+\section{Conclusion}
+In this project, we successfully design a non-volatile memory based storage stack Blizzard. The proposed stack uses non-volatile memory and modern networking system to provide a fast and also reliable persistent data storage. In our work, we show that even though logical data replication is not common in non-volatile memory domain, with careful adoption, we are able to achieve good performance. In addition, we design a prototype in our work, which shows good throughput and latency compared to previous work. We believe that the system can be adopted with other real world applications and also achieve good performance. 
+
+\section{Future Work}
+In this work, the idea is only tested in a basic prototype, but the real world application may introduce more random behaviors compared to an idealized prototype. Therefore, the next step is that we can extend our prototype to real world application that actually performs select or join operations. We have made some progress on Lobsters web app which is similar to Hackernews, but we expect to extend our framework and test it out on other real world applications. 
+
+In this work, we did not get a chance to evaluate the PMDK physical replication implementation. In this future, we will think about how to comprehensively evaluate the physical replication implementation's performance. 
