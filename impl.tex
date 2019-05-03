@@ -124,6 +124,8 @@ We have identified the following goals for our project.
 
 			Intel PMDK~\cite{pmdk} provides persistent memory aware data-structures. But they lack the reliability semantics.
 
+			Mojim from UCSD, in order to achieve data reliability and availability under large scale condition, it uses two tier architecture in which the primary tier contains a mirrored pair of node and the secondary tier contains one or more secondary backup nodes with weakly consistent copies of data. Mojim protocol provides an extra layer of redundancy so that users are able to specify whether they want to ensure strong or weak consistency between primary node and backup node. Though the Mojim shows good performance in terms of latency and throughput, it does not scale well under high concurrency. When the number of users is high, it suffers from reduced latency and throughput. 
+
 \section{Conclusion}
 In this project, we successfully design a non-volatile memory based storage stack Blizzard. The proposed stack uses non-volatile memory and modern networking system to provide a fast and also reliable persistent data storage. In our work, we show that even though logical data replication is not common in non-volatile memory domain, with careful adoption, we are able to achieve good performance. In addition, we design a prototype in our work, which shows good throughput and latency compared to previous work. We believe that the system can be adopted with other real world applications and also achieve good performance. 
 
