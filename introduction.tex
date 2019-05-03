@@ -61,7 +61,7 @@ memory. Community has worked on efficient crash-consistency mechanism, concurren
 memory interaction, etc. 
 
 However, unlike volatile transient data, persistent data usages
-demand reliability from the system software hardware/software, because the long business critical data
+demand reliability from the system software hardware/software, because the business critical data
 in the form of application state gets stored on them. Therefore, persistent data storage stacks such
 as databases provide data-reliability via data replication. Data replication is costly and often
 greatly slows down application. Therefore, the common practice is to stay away from reliable data
@@ -70,7 +70,18 @@ storage or to relax some of the reliability guarantees.
 Network system software stacks performance have greatly improved over the years. More importantly
 the network system software designed to work well with memory hardware. With NVM offering persistent
 storage we argue that well designed system software stack can provide both persistent and reliable
-data guarantees at a lower performance cost than that of today's state of the art.
+data guarantees at a lower performance cost than that of today's state of the art. For an example
+PMDK implements an programming abstraction called pool-sets. They provide reliability using network
+hardware that supports remote direct memory access (RDMA). RDMA enable copying data in to remote
+machine's memory avoiding the remote CPU altogether. NVM being a memory device, the combination of
+RDMA and NVM seems to be a good design choice to achieve reliable NVM data-storage.
+
+However, such design might become network intensive, as we have to replicate data at the byte
+granularity -- we have to instrument and replicate every memory update operation in to remote node.
+Blizzard, makes a different design choice -- a counter-intuitive approach. We show that, state 
+machine replication ( a well studied replication technique) can be made to work with NVMs. 
+The result is a novel persistent storage system software stack that provides both reliable data
+storage and natural persistent data representation.
 
 \section{Blizzard}
 We propose Blizzard, a reliable persistent programming substrate. Blizzard provides applications
