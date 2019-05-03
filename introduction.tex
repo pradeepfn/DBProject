@@ -6,8 +6,8 @@
 	In this paper, we propose Blizzard, a reliable persistent storage stack,
 	that uses NVMs and modern networking system software to provide a reliable
 	persistent data-storage. Blizzard combines a network optimized Paxos like 
-	operation repication stack and a persistent data-structure library to 
-	provide a fast and relibale persistent data storage stack that supports
+	operation replication stack and a persistent data-structure library to 
+	provide a fast and reliable persistent data storage stack that supports
 	familiar C++ STL library's programming abstraction.
 
 \end{abstract}
@@ -24,24 +24,24 @@ with low latency reads and writes.
 
 Systems community was quick to adopt NVM device properties in their system software
 designs. There has been NVM optimized file-systems,databases,kv-stores and programming abstractions.
-However, the existing persistent memory programming abstractions in the form the kv-stores, posix 
+However, the existing persistent memory programming abstractions in the form the kv-stores, POSIX 
 file APIs and SQL interfaces do not provide data reliability as a first class system
 property. That is, as the NVM modules store data local to the machine, there is a possibility of 
-losing data in an event of catastrophic machine failure. The existing systems provide reliablity
+losing data in an event of catastrophic machine failure. The existing systems provide reliability
 via data-replication, but such solution are more of an after thought.
 
 Furthermore, the state of the art persistent memory storage abstractions such as DBMSs file-systems
 follow the traditional wisdom of storing persistent data with different data layouts/formats
 than the application structures that they represent. This scenario is commonly known as 
-the impedence mismatch of volatile and peristent data. The reason for such mismatch stems 
+the impedance mismatch of volatile and persistent data. The reason for such mismatch stems 
 from mainly due to their storage device characteristics. The persistent devices used to be
 block addressabilty while the main memory is byte addressable.
 
 With ever improving network hardware and low latency network systems software stacks, 
-the data replication costs have reduced signficantly over the years. Combined with NVM's
-fast stores, it is now possible provide reliable persistent storage with minimal impedence
+the data replication costs have reduced significantly over the years. Combined with NVM's
+fast stores, it is now possible provide reliable persistent storage with minimal impedance
 mismatch. We design and implement Blizzard, a set of programming abstractions that provides 
-reliable and persistent data storage. First, Blizzard bridges volatile and persistent impedence
+reliable and persistent data storage. First, Blizzard bridges volatile and persistent impedance
 mismatch by directly manipulating persistent memory resident data-structures. Second, it helps
 persistent storage programming by supporting well-known C++ STL like persistent containers.
 Third, Blizzard improves the reliability of these persistent containers using NVM aware replication library.
@@ -91,9 +91,16 @@ with reliable persistent containers that closely matches the ones provided by C+
 	\centering
 	\includegraphics[width=\linewidth]{figures/overview.pdf} 
 	\caption{\bf Read heavy web-applications are a important class of workload. Up to 90\% of their,
-	application queries are reads. The read path normally consists of costly tabe joins and selects} 
-	\label{fig:analytics} 
+	application queries are reads. The read path normally consists of costly table joins and selects} 
+	\label{analytics} 
 \end{figure}
+
+Blizzard targets a key application sector for its design inspirations -- read heavy applications.
+Most of the web-applications are read-heavy, that is most of the queries involve creating 
+analytics like insights~\autoref{analytics} using already written data. In contrast to 
+traditional relational DB storage engines that are mostly optimized to slow disk writes,
+Blizzard support persistent data-structures that avoid special tricks in the write path. We 
+can afford to do that, as the NVM writes are fast for both random and sequential accesses.
 
 
 \subsection{Persistent Data Structures}
@@ -101,36 +108,56 @@ with reliable persistent containers that closely matches the ones provided by C+
 C++ STL containers are a popular programming abstraction among software developers. This is because,
 more often than not, the application's runtime state can be represented by few commonly used 
 data-structures.  However, the C++ STL containers are meant to use with volatile memory, thus
-lacks an failure-atomic udpate support in their existing form.
+lacks failure-atomic update support in their existing form.
 
 Unlike, volatile main memory, the data stored on persistent memory survives application restarts,
 node restarts -- they are persistent data after all. Hence, we have to guard the data updates 
 against unplanned application crashes, node crashes. Write-ahead logging is a well studied
 system technique that guarantees all or nothing property during persistent storage updates.
-With NVMs we can use value logging in the form of redo/undo logs.
+With NVMs we can use value logging in the form of redo/undo logs. In addition to WAL, one 
+can use copy-on-write (COW) technique to maintain crash-consistent state on the persistent memory. 
 
 \begin{figure}[tbp]   
 	\centering
 	\includegraphics[width=\linewidth]{figures/design.pdf} 
 	\caption{\bf The high-level architecture of Blizzard. Blizzard supports multiple data-structures that are both
 	persistent and reliable. The consuming applications access these structure over network.} 
-	\label{fig:arch} 
+	\label{arch} 
 \end{figure}
 
-Intel PMDK project implements wide-array of persistent memory data-structures. 
-We use them as our building blocks as the sources are freely available. 
+We allocate NVM memory chunks our of persistent memory address space using a persistent memory allocator.
+A persistent allocator in-contrast to its volatile counterpart, should be able to recover from a unplanned
+application/node crash. Therefore the allocator itself has to support crash-consistent semantics at the 
+allocator level. Furthermore, the NVM memory regions mapped in to the process address space does not
+guarantee, constant start address space during each run of the application. Hence, the allocator has to 
+work with offset when managing allocator metadata. Similarly the persistent pointers return by allocators
+are offset based addresses and should be converted in to regular pointers before using them.
 
-\subsection{Relaible Persistent Containers}
+\subsection{Reliable Persistent Containers}
 
-We use state machine replication (SMR) as our replication mechanism. SMR's can tolerate
+While crash-consistent persistent data-structures survives soft/transient failures, they cannot
+recover from node/hard failures. This is because the data is lost along with node hardware.
+To recover from such unplanned accident we have to extend our persistent state with reliability
+properties. Data replication allows us to recover from hard failures. The key idea being, we maintaining
+an up-to-date data replica at all times to use as a backup persistent state in the case of main
+replica failure. The probability of simultaneous hard-failures of all replicas decreases rapidly
+with the number of total replicas -- hence we can use the replication factor as knob to provide
+selected reliability guarantees.
+
+We use state machine replication (SMR)~\cite{raft} as our replication mechanism. SMR's can tolerate
 up to 'f' node failures, given number of replicas are '2f+1'. Furthermore, SMRs improves
 availability, due to dynamic leader election and log-sync up, any of our follower replicas
-can take over the duties of master node in an event of node failure.
+can take over the duties of master node in an event of node failure without using any
+external co-coordinator.
 
-Our replication layer support logical operation replication. We plug our containers to work with
-the the replicated operations. 
+The incoming Blizzard data-structure request~\autoref{arch} has data-structure id, data-structure type
+and the operation id. We assign a unique operation id to each data-structure operation. 
+Then the incoming request in to master node get replicated across the follower node 
+before being identified as a replicated/commited request. Blizzard uses logical
+replication -- we replicate the operation itself, not the effects of the operation. Each
+replica is responsible for applying the operation on to their local copy of the data-structure.
 
-We expose below set of operations to the end user applications via client API.
+We expose below set of operations (not complete)  to the end user applications via client API.
 
 \begin{itemize}
 	\item Create container - create and initialize a given STL container type for given data types
@@ -138,21 +165,22 @@ We expose below set of operations to the end user applications via client API.
 	\item Get - retrieve value from the container.
 \end{itemize}
 
-A typical STL container inteface supports more operations than listed above. We plan to support them
-as and wehen needed for our application benchmakr needs.
+A typical STL container interface supports more operations than listed above. We plan to support them
+as and when needed for our application benchmark needs.
 
 \subsection{Primitive for Reliable, Persistent Data-structure Creation}
 
-Above integration between persistent data-structures and log replicaiton layer
-gives reliablity to our persistent data structures. However, the application developers 
+Above integration between persistent data-structures and log replication layer
+gives reliability to our persistent data structures. However, the application developers 
 still have to explicitly call Blizzard API to manipulate persistent state of the application.
-Multi-word CAS is a programming primitive that support both concurrency and persistent. Similar
+Multi-word CAS is a programming primitive that support both concurrency and persistency. Similar
 primitive that extends the persistency and concurrency with reliability would be very useful
 programming tool.
 
-We are exploring this path at the moment. However, as our log-replicaiton layer relies on operation/logical
-logging we have not yet figured out a way to seamlessly extend the current work in to PMWCAS.
-
-
-
+However, with our logical operations replication approach it is not possible to integrate such
+primitive in to Blizzard's system software design. MWCAS designs uses byte level memory-address/byte-level
+updates during its operations. Therefore, supporting extending MWCAS with reliability requires us to
+replicate each and memory update across the network. Network round trip latency in the micro-second
+range whereas the NVM memory access is in the nano-second range. Therefore, we argue that such primitive
+performs bad due to excessive loads on the slow network operations.
 

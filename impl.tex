@@ -18,9 +18,9 @@ use same DPDK transport for performance reasons.
 
 \section{Evaluation}
 %evaluate performance
-We evaluate a prototype version of Blizzard to understand the initial peformance characteristics of the proposed
+We evaluate a prototype version of Blizzard to understand the initial performance characteristics of the proposed
 system. Specifically, we seek to answer the following question -- ``What is the cost of reliable data-structures of
-Blizzard comapred to state of the art system storage stacks?. ``
+Blizzard compared to state of the art system storage stacks?. ``
 
 To this end we evaluate the performance of reliable persistent map data structure of Blizzard to a state of the art
 key-value store implementation. We describe each of them below.
@@ -28,8 +28,8 @@ key-value store implementation. We describe each of them below.
 \noindent{Blizzard persistent-map}
 This is a persistent B+tree structure that works with our operations replication layer. The internal nodes
 store 64 keys, and maintain sorted ordering at all times. We use copy-on-write (COW) crash consistency 
-semantics -- we create a new subtree and copy the data over, whenever we encounter a internal node split. 
-We then switch the consistent view of the tree to new subtree using an atomic CAS primtive. 
+semantics -- we create a new sub-tree and copy the data over, whenever we encounter a internal node split. 
+We then switch the consistent view of the tree to new sub-tree using an atomic CAS primitive. 
 \noindent{RocksDB}
 RocksDB is an open source persistent storage engine by Facebook. It is being used by number of production quality
 applications as their persistent storage stack. The key data-structure supporting RocksDB is, log-structured merge
@@ -43,7 +43,7 @@ reads with configurable ratios between them. The client uses an asynchronous mes
 load the target backend server with enough requests.
 
 %testbed
-We use a three machine nodes connected with ethernet networking hardware as our testbed. We use real NVM hardware
+We use a three machine nodes connected with Ethernet networking hardware as our testbed. We use real NVM hardware
 in our test platform. The workload generator/client sits in a separate node. We list the hardware configuration of
 our test bend in ~\autoref{testbed}
 \begin{table}[h!]
@@ -52,7 +52,7 @@ our test bend in ~\autoref{testbed}
 		\hline
 		CPU & 1.2 Ghz, 96 cores over 2 NUMA sockets \\
 		Replicas & 3 replicas. Single master \\
-		Network & 100G ethernet LAN \\
+		Network & 100G Ethernet LAN \\
 		Network-stack & Intel DPDK \\
 		DRAM & 256 GB \\
 		NVRAM & 1 TB \\
@@ -78,7 +78,7 @@ our test bend in ~\autoref{testbed}
 \end{figure}
 
 
-Blizzard persistent map ~\autoref{plot:map} can process upto 430K messages per second over 4 map partitions, when the 
+Blizzard persistent map ~\autoref{plot:map} can process up to 430K messages per second over 4 map partitions, when the 
 workload comprised of 50\% updates. Furthermore, the message latency stay below, 30 micro-seconds, even with three node
 replication. In contrast, a state of the art storage engine can only handle peak message throughput of 35K, when 
 placed remote to the workload. It is important to note that the measured RocksDB numbers are for a single replica -- RocksDB
@@ -87,12 +87,12 @@ does not have replication overhead in the reported numbers.
 
 %future work
 Furthermore,we plan to evaluate our system with a real application workload. In this experiment setup, we try to understand the costs
-and benefits involved while using a reliable persistent containers as the basic application's peristent storage abstraction.
+and benefits involved while using a reliable persistent containers as the basic application's persistent storage abstraction.
 We looked in to porting a ``Hackernews`` like web-application to use Blizzard data-structures. The application named Lobsters
 ~\cite{lobsters} among others, maintain two key tables named ``posts`` and ``votes``. The first table stores the 
-title,url,etc related to particular post and the latter stores the individual vote counts for a given post. The original
+title,URL,etc related to particular post and the latter stores the individual vote counts for a given post. The original
 Lobsters application uses an inner join to between these two tables to derive the output table that has top-most K posts
-by votes. We identify that this read pattern can be effectively supported using a more natural in-memory data strucutre --
+by votes. We identify that this read pattern can be effectively supported using a more natural in-memory data structure --
 persistent priority queue. We are working towards that.
 
 
@@ -100,31 +100,27 @@ persistent priority queue. We are working towards that.
 %project goals description
 We have identified the following goals for our project.
 \begin{itemize}
-    \item {\bf The 75$\%$ goal:} 1) Porting a Tree (range lookup) and Map ( point lookup) data structure as a reliable persistent containers. 2) Implementing client side library routines to interact with those containers over the network. 
-    \\ \\
-    At first, we spend couple weeks exploring different ideas. Our original thought was to extend the database indexing process to the non-volatile memory. However, we realized that data replication actually introduces large amount of overhead to the system. Therefore, we switched to designing a reliable protocol for database data. For the 75$\%$ goal, we utilize the pmem library to emulate the non-volatile memory and successfully port the client side library with containerized service.
-    \\
-    \item {\bf The 100$\%$ goal:} 1) Port YCSB benchmark to work with our containers. 2) Port a state of the art kv-store (RocksDB). 3) Using ported YCSB benchmark client, report numbers for Blizzard containers and competing state of the art. ( RocksDB ).
-    \\ \\
-    YCSB is a comprehensive test benchmark provided by Yahoo open source. It is mainly coded in Java. Users can create a interface in YCSB to interact with the actual DBMS and the performance will be tested through the interface. The major issue of this goal is that YCSB is mostly in Java, but our implementation is in C++. Therefore, for this goal, we utilized a already implemented driver from Pelaton to interact with the YCSB testing benchmark. 
+    \item {\bf The 75$\%$ goal:} 1) Porting a Tree (range lookup) and Map ( point lookup) data structure as a reliable persistent containers. 2) Implementing client side library routines to interact with those containers over the network. We successfully completed
+				this project goal.
+    \item {\bf The 100$\%$ goal:} 1) Port YCSB benchmark to work with our containers. 
+				2) Port a state of the art kv-store (RocksDB). 3) Using ported YCSB benchmark client, report numbers 
+				for Blizzard containers and competing state of the art. ( RocksDB ). We successfully completed this goal.
     \\
     \item {\bf The 125$\%$ goal:} Extend and PMWCAS to support reliability. This include design of the primitive as it is not straight forward at this point to design it.
     \\ \\
     We have learned PMWCAS and tried to port it into our framework, but due to its complexity of dealing with multi-word concurrency update, we are not able to port it into our prototype. 
 \end{itemize}
 
+\section{Related Work}
 
+PMWCAS~\cite{pmwcas} is a programming primtive that supports both multiword persistent update and concurrency.
+It extends well known CAS pritmive with multiword support while supporting same all or nothing
+programming semantics of CAS. Furthermore, it extends the CAS to be persistent memory aware by
+adding support for durability semantics ( fences and cache-line flushes).
 
-			\section{Related Work}
+Intel PMDK~\cite{pmdk} provides persistent memory aware data-structures. But they lack the reliability semantics.
 
-			PMWCAS~\cite{pmwcas} is a programming primtive that supports both persistency and multiword updates.
-			It extends well known CAS pritmive with multiword support while supporting same all or nothing
-			programming semantics of CAS. Furthermore, it extends the CAS to be persistent memory aware by
-			adding support for durability semantics ( fences and cache-line flushes).
-
-			Intel PMDK~\cite{pmdk} provides persistent memory aware data-structures. But they lack the reliability semantics.
-
-			Mojim from UCSD, in order to achieve data reliability and availability under large scale condition, it uses two tier architecture in which the primary tier contains a mirrored pair of node and the secondary tier contains one or more secondary backup nodes with weakly consistent copies of data. Mojim protocol provides an extra layer of redundancy so that users are able to specify whether they want to ensure strong or weak consistency between primary node and backup node. Though the Mojim shows good performance in terms of latency and throughput, it does not scale well under high concurrency. When the number of users is high, it suffers from reduced latency and throughput. 
+Mojim from UCSD, in order to achieve data reliability and availability under large scale condition, it uses two tier architecture in which the primary tier contains a mirrored pair of node and the secondary tier contains one or more secondary backup nodes with weakly consistent copies of data. Mojim protocol provides an extra layer of redundancy so that users are able to specify whether they want to ensure strong or weak consistency between primary node and backup node. Though the Mojim shows good performance in terms of latency and throughput, it does not scale well under high concurrency. When the number of users is high, it suffers from reduced latency and throughput. 
 
 \section{Conclusion}
 In this project, we successfully design a non-volatile memory based storage stack Blizzard. The proposed stack uses non-volatile memory and modern networking system to provide a fast and also reliable persistent data storage. In our work, we show that even though logical data replication is not common in non-volatile memory domain, with careful adoption, we are able to achieve good performance. In addition, we design a prototype in our work, which shows good throughput and latency compared to previous work. We believe that the system can be adopted with other real world applications and also achieve good performance. 

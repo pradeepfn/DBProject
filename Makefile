@@ -1,6 +1,21 @@
 TARGET=paper
 all: pdf
 
+NAME = paper
+TEX_SOURCES = $(NAME).tex 
+BIB_FILES = ${NAME}.bib
+EPS_FILES = figures/*
+
+paper : $(TEX_SOURCES)
+	make clean
+	pdflatex $(NAME)
+	bibtex ${NAME}
+	pdflatex $(NAME)
+	pdflatex $(NAME)
+
+
+
+
 pdf:
 	GS_OPTIONS=-dPDFSETTINGS=/prepress rubber -e "bibtex.crossrefs 100" --pdf -Wrefs -Wmisc $(TARGET)
 
