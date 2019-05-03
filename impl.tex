@@ -16,10 +16,6 @@ state machine replication with Raft as the consensus protocol. Cyclone network t
 userspace Intel's data plane development kit (DPDK) transport stack. Due to this, we had to port YCSB benchmark to
 use same DPDK transport for performance reasons.
 
-\section{Implementation}
-
-
-
 \section{Evaluation}
 %evaluate performance
 We evaluate a prototype version of Blizzard to understand the initial peformance characteristics of the proposed
@@ -71,21 +67,22 @@ our test bend in ~\autoref{testbed}
 	\centering
 	\includegraphics[width=\linewidth]{plot/rocksdbcompare.pdf} 
 	\caption{\small RocksDB throughput latency numbers under different read/write ratios. The WAL and the SSTables are placed on NVM. The replication\_factor=1} 
-	\label{fig:pmemkv} 
+	\label{plot:rocksdb} 
 \end{figure}
 
 \begin{figure}[tbp]   
 	\centering
 	\includegraphics[width=\linewidth]{plot/bliztree-partition.pdf} 
 	\caption{\small B-tree based persistent map with 4 partitions/executor threads. We replicate each update over 3 nodes} 
-	\label{fig:pmemkv} 
+	\label{plot:map} 
 \end{figure}
 
 
-
-
-
-
+Blizzard persistent map ~\autoref{plot:map} can process upto 430K messages per second over 4 map partitions, when the 
+workload comprised of 50\% updates. Furthermore, the message latency stay below, 30 micro-seconds, even with three node
+replication. In contrast, a state of the art storage engine can only handle peak message throughput of 35K, when 
+placed remote to the workload. It is important to note that the measured RocksDB numbers are for a single replica -- RocksDB
+does not have replication overhead in the reported numbers. 
 
 
 %future work
