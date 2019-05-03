@@ -1,14 +1,14 @@
 \begin{abstract}
 	Byte addressable Non-volatile memory(NVM) technologies such as Intel's
-3DXpoint has entered in to the commodity compute platforms. These
-new storage class memory demand new breed of database management system 
-software stacks. 
-In this paper, we propose Blizzard, a reliable persistent storage stack,
-that uses NVMs and modern networking system software to provide a reliable
-persistent data-storage. Blizzard combines a network optimized Paxos like 
-operation repication stack and a persistent data-structure library to 
-provide a fast and relibale persistent data storage stack that supports
-familiar C++ STL library's programming abstraction.
+	3DXpoint has entered in to the commodity compute platforms. These
+	new storage class memory demand new breed of database management system 
+	software stacks. 
+	In this paper, we propose Blizzard, a reliable persistent storage stack,
+	that uses NVMs and modern networking system software to provide a reliable
+	persistent data-storage. Blizzard combines a network optimized Paxos like 
+	operation repication stack and a persistent data-structure library to 
+	provide a fast and relibale persistent data storage stack that supports
+	familiar C++ STL library's programming abstraction.
 
 \end{abstract}
 
@@ -87,6 +87,15 @@ storage and natural persistent data representation.
 We propose Blizzard, a reliable persistent programming substrate. Blizzard provides applications
 with reliable persistent containers that closely matches the ones provided by C++ STL containers.
 
+\begin{figure}[tbp]   
+	\centering
+	\includegraphics[width=\linewidth]{figures/overview.pdf} 
+	\caption{\bf Read heavy web-applications are a important class of workload. Up to 90\% of their,
+	application queries are reads. The read path normally consists of costly tabe joins and selects} 
+	\label{fig:analytics} 
+\end{figure}
+
+
 \subsection{Persistent Data Structures}
 
 C++ STL containers are a popular programming abstraction among software developers. This is because,
@@ -100,12 +109,12 @@ against unplanned application crashes, node crashes. Write-ahead logging is a we
 system technique that guarantees all or nothing property during persistent storage updates.
 With NVMs we can use value logging in the form of redo/undo logs.
 
-\begin{figure}[]   
+\begin{figure}[tbp]   
 	\centering
 	\includegraphics[width=\linewidth]{figures/design.pdf} 
-	\caption{\bf Node structure of a RBTree node. We do not store key vlaues in the internal nodes. We simply
-	store a persistent pointer in to the external key.} 
-	\label{fig:zerocopy} 
+	\caption{\bf The high-level architecture of Blizzard. Blizzard supports multiple data-structures that are both
+	persistent and reliable. The consuming applications access these structure over network.} 
+	\label{fig:arch} 
 \end{figure}
 
 Intel PMDK project implements wide-array of persistent memory data-structures. 
@@ -124,9 +133,9 @@ the the replicated operations.
 We expose below set of operations to the end user applications via client API.
 
 \begin{itemize}
-\item Create container - create and initialize a given STL container type for given data types
-\item Insert - insert value in to the container.
-\item Get - retrieve value from the container.
+	\item Create container - create and initialize a given STL container type for given data types
+	\item Insert - insert value in to the container.
+	\item Get - retrieve value from the container.
 \end{itemize}
 
 A typical STL container inteface supports more operations than listed above. We plan to support them
