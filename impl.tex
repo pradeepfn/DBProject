@@ -50,32 +50,43 @@ load the target backend server with enough requests.
 We use a three machine nodes connected with ethernet networking hardware as our testbed. We use real NVM hardware
 in our test platform. The workload generator/client sits in a separate node. We list the hardware configuration of
 our test bend in ~\autoref{testbed}
-\begin{center}
+\begin{table}[h!]
+	\centering
 	\begin{tabular}{l|l}
 		\hline
 		CPU & 1.2 Ghz, 96 cores over 2 NUMA sockets \\
+		Replicas & 3 replicas. Single master \\
 		Network & 100G ethernet LAN \\
 		Network-stack & Intel DPDK \\
 		DRAM & 256 GB \\
 		NVRAM & 1 TB \\
 	\end{tabular}
-\end{center}
+	\caption{Evaluation testbed details}
+	\label{testbed}
+\end{table}
 
 %result analysis
 
 \begin{figure}[tbp]   
 	\centering
 	\includegraphics[width=\linewidth]{plot/rocksdbcompare.pdf} 
-	\caption{\small RocksDB throughput latency numbers under different read/write ratios. The WAL and the SSTables are placed on NVM} 
+	\caption{\small RocksDB throughput latency numbers under different read/write ratios. The WAL and the SSTables are placed on NVM. The replication\_factor=1} 
 	\label{fig:pmemkv} 
 \end{figure}
 
 \begin{figure}[tbp]   
 	\centering
 	\includegraphics[width=\linewidth]{plot/bliztree-partition.pdf} 
-	\caption{\small B-tree based persistent map with 4 partitions/executor threads} 
+	\caption{\small B-tree based persistent map with 4 partitions/executor threads. We replicate each update over 3 nodes} 
 	\label{fig:pmemkv} 
 \end{figure}
+
+
+
+
+
+
+
 
 %future work
 Furthermore,we plan to evaluate our system with a real application workload. In this experiment setup, we try to understand the costs
